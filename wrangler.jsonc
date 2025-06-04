@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "hypercore",
+  "name": "hypercore-1",
   "main": "src/index.js",
   "compatibility_date": "2025-06-04",
 
