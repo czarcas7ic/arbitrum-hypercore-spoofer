@@ -1,57 +1,67 @@
 // -----------------------------------------------------------------------------
-// Arbitrum “chain-ID spoofer” + balance-zeroer
-//   • eth_chainId      → 0x539  (hex of 1337)
-//   • net_version      → 1337   (decimal)
-//   • eth_getBalance   → 0x0    (no native balance)
-//   • everything else  → proxied to real Arbitrum One
+// Arbitrum “chain-ID spoofer” + balance-zeroer  (env-configurable)
+//
+//   • CHAIN_ID env var (decimal "1337" or hex "0x539")
+//         └─ eth_chainId  → 0x<hex>
+//         └─ net_version  → <decimal>
+//   • eth_getBalance      → 0x0      (always zero)
+//   • all other methods   → proxied to real Arbitrum One
 // -----------------------------------------------------------------------------
 
-// Default upstream (override with an account-level VAR or wrangler.toml/jsonc)
-const UPSTREAM = globalThis.UPSTREAM_URL || 'https://arb1.arbitrum.io/rpc';
+// Read env vars that Wrangler/Cloudflare injects as global bindings
+const UPSTREAM_RAW = globalThis.UPSTREAM_URL || 'https://arb1.arbitrum.io/rpc';
+const CHAIN_RAW    = globalThis.CHAIN_ID    || '1337';   // default 1337 if unset
+
+// Normalise CHAIN_ID into both forms -------------------------------
+let CHAIN_DEC;   // "1337"
+let CHAIN_HEX;   // "0x539"
+
+if (/^0x/i.test(CHAIN_RAW)) {
+  // User supplied hex
+  CHAIN_HEX = '0x' + CHAIN_RAW.slice(2).toLowerCase();
+  CHAIN_DEC = String(parseInt(CHAIN_RAW, 16));
+} else {
+  // User supplied decimal
+  CHAIN_DEC = String(parseInt(CHAIN_RAW, 10));
+  CHAIN_HEX = '0x' + BigInt(CHAIN_DEC).toString(16);
+}
 
 export default {
-  /**
-   * Cloudflare Workers “fetch” handler
-   * @param {Request} req
-   * @returns {Promise<Response>}
-   */
   async fetch(req) {
-    // Parse the incoming JSON-RPC payload
     const body = await req.json();
     const { id, method } = body;
 
-    // ───────────────────────────────────────────────────────────────────────────
-    // 1. Spoof chain-ID methods
-    // ───────────────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
+    // Spoof chain ID family
+    // ────────────────────────────────────────────────
     if (method === 'eth_chainId' || method === 'net_version') {
       return Response.json({
         jsonrpc: '2.0',
         id,
-        result: method === 'net_version' ? '1337' : '0x539',
+        result: method === 'net_version' ? CHAIN_DEC : CHAIN_HEX,
       });
     }
 
-    // ───────────────────────────────────────────────────────────────────────────
-    // 1-bis. Always report zero native balance
-    // ───────────────────────────────────────────────────────────────────────────
+    // ────────────────────────────────────────────────
+    // Always zero native balance
+    // ────────────────────────────────────────────────
     if (method === 'eth_getBalance') {
       return Response.json({
         jsonrpc: '2.0',
         id,
-        result: '0x0',        // canonical zero in hex
+        result: '0x0',
       });
     }
 
-    // ───────────────────────────────────────────────────────────────────────────
-    // 2. Pass-through everything else to the real Arbitrum endpoint
-    // ───────────────────────────────────────────────────────────────────────────
-    const upstream = await fetch(UPSTREAM, {
+    // ────────────────────────────────────────────────
+    // Pass-through for everything else
+    // ────────────────────────────────────────────────
+    const upstream = await fetch(UPSTREAM_RAW, {
       method: 'POST',
       body: JSON.stringify(body),
       headers: { 'content-type': 'application/json' },
     });
 
-    // Stream the upstream response back to the caller
     return new Response(upstream.body, upstream);
   },
 };
