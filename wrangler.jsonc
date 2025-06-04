@@ -7,10 +7,8 @@
   // Turn on request logs in the dashboard
   "observability": { "enabled": true },
 
-  // -----------------------------▼ NEW ▼-----------------------------
   "vars": {
-    // Default Arbitrum One JSON-RPC endpoint.
-    "UPSTREAM_URL": "https://arb1.arbitrum.io/rpc"
+    "UPSTREAM_URL": "https://arb1.arbitrum.io/rpc",
+    "CHAIN_ID": "1337"          // or "0x539", "5", "0x5", etc.
   }
-  // -----------------------------▲ NEW ▲-----------------------------
 }
