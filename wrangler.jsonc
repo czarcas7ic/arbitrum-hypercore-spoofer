@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "arbitrum-spoofer",
+  "main": "src/index.js",
+  "compatibility_date": "2025-06-04",
+
+  // Turn on request logs in the dashboard
+  "observability": { "enabled": true },
+
+  // -----------------------------▼ NEW ▼-----------------------------
+  "vars": {
+    // Default Arbitrum One JSON-RPC endpoint.
+    // Change this to an Alchemy / QuickNode URL if you have an API key.
+    "UPSTREAM_URL": "https://arb1.arbitrum.io/rpc"
+  }
+  // -----------------------------▲ NEW ▲-----------------------------
+}
