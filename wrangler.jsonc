@@ -10,7 +10,6 @@
   // -----------------------------▼ NEW ▼-----------------------------
   "vars": {
     // Default Arbitrum One JSON-RPC endpoint.
-    // Change this to an Alchemy / QuickNode URL if you have an API key.
     "UPSTREAM_URL": "https://arb1.arbitrum.io/rpc"
   }
   // -----------------------------▲ NEW ▲-----------------------------
