@@ -10,7 +10,7 @@
 
 // Read env vars that Wrangler/Cloudflare injects as global bindings
 const UPSTREAM_RAW = globalThis.UPSTREAM_URL || 'https://arb1.arbitrum.io/rpc';
-const CHAIN_RAW    = globalThis.CHAIN_ID    || '1';   // default 1 if unset
+const CHAIN_RAW    = globalThis.CHAIN_ID    || '1337';   // default 1337 if unset
 
 // Normalise CHAIN_ID into both forms -------------------------------
 let CHAIN_DEC;   // "1"
