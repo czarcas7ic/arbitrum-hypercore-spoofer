@@ -9,6 +9,6 @@
 
   "vars": {
     "UPSTREAM_URL": "https://arb1.arbitrum.io/rpc",
-    "CHAIN_ID": "1"          // or "0x539", "5", "0x5", etc.
+    "CHAIN_ID": "1337"          // or "0x539", "5", "0x5", etc.
   }
 }
